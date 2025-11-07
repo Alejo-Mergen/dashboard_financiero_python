@@ -1,32 +1,26 @@
 import requests
 import time
+import datetime
 import os
+from colorama import  Fore, Style
+import config
 
-url = "https://dolarapi.com/v1/dolares"
 
-while True:
-    try:
-        #Limpia la pantalla en cada actualizacion (para que sea mas legible)
-        os.system("cls" if os.name == "nt" else "clear") 
+url = config.API_URL
 
-        print("📊 Cotización del Dólar (actualizado en tiempo real)")
-        print("-" * 50)
+from ui.display import mostrar_datos
 
-        response = requests.get(url, timeout=5)
-        response.raise_for_status()
-        data = response.json()
+from data.api import obtener_datos_dolar
+    
+def datos_del_dolar():
+    while True:
+        data = obtener_datos_dolar(url)
+        if data != None:
+            mostrar_datos(data)
+                # Espera 10 segundos antes de volver a actualizar
+            time.sleep(config.UPDATE_INTERVAL)
 
-        for dolar in data:
-            nombre = dolar["nombre"]
-            compra = dolar["compra"]
-            venta = dolar["venta"]
-            print(f"{nombre}: Compra {compra} | Venta {venta}")
+datos_del_dolar()
 
-        print("-" * 50)
-        print("🔄 Actualizando en 10 segundos...\n")
 
-    except requests.exceptions.RequestException as e:
-        print("❌ Error al obtener los datos:", e)
 
-    # Espera 10 segundos antes de volver a actualizar
-    time.sleep(10)
